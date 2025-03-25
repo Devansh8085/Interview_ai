@@ -1,11 +1,7 @@
+// geminiapi.js
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 
-const {
-  GoogleGenerativeAI,
-  HarmCategory,
-  HarmBlockThreshold,
-} = require("@google/generative-ai");
-
-const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY='AIzaSyD9BIvjVYCeY0LzdYp_nS2pAwetPZI0TK4';
+const apiKey = 'AIzaSyD9BIvjVYCeY0LzdYp_nS2pAwetPZI0TK4';
 const genAI = new GoogleGenerativeAI(apiKey);
 
 const model = genAI.getGenerativeModel({
@@ -33,5 +29,5 @@ const safetySettings = [
 
 export const chatSession = model.startChat({
   generationConfig,
-  safetySettings
+  safetySettings,
 });

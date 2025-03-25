@@ -169,8 +169,8 @@ const AddQuestions = () => {
         </div>
       </div>
 
-      <Dialog open={openDailog}>
-        <DialogContent className="max-w-2xl bg-white shadow-2xl rounded-xl">
+      <Dialog open={openDailog} onOpenChange={setOpenDialog}>
+        <DialogContent className="max-w-2xl bg-white shadow-2xl rounded-xl max-h-[97%] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-teal-600 mb-4 flex items-center">
               <Target 

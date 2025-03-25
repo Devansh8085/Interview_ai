@@ -20,21 +20,21 @@ const ProfessionalWebcamSVG = () => (
       stroke="#4A4E69" 
       strokeWidth="3"
     />
-    
+
     <circle cx="150" cy="100" r="35" 
       fill="#0D1B2A" 
       stroke="#415A77" 
       strokeWidth="2"
     />
-    
+
     <circle cx="155" cy="95" r="12" 
       fill="rgba(255,255,255,0.2)" 
     />
-    
+
     <circle cx="230" cy="70" r="5" 
       fill="#E94560" 
     />
-    
+
     <path 
       d="M70 75 Q100 85, 130 75 M70 125 Q100 115, 130 125" 
       fill="none" 
@@ -102,12 +102,12 @@ const RecordAnswerSection = ({
     try {
       setLoading(true);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      
+
       const reader = new FileReader();
       reader.readAsDataURL(audioBlob);
       reader.onloadend = async () => {
         const base64Audio = reader.result.split(',')[1];
-        
+
         const result = await model.generateContent([
           "Transcribe the following audio:",
           { inlineData: { data: base64Audio, mimeType: "audio/webm" } },
@@ -197,7 +197,7 @@ const RecordAnswerSection = ({
         >
           {webCamEnabled ? "Close WebCam" : "Enable WebCam"}
         </Button>
-        
+
         <Button
           variant="outline"
           onClick={isRecording ? stopRecording : startRecording}

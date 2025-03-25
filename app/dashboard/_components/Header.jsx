@@ -10,7 +10,8 @@ import {
   X, 
   LayoutDashboard, 
   HelpCircle, 
-  Cpu 
+  Cpu, 
+  Home 
 } from "lucide-react";
 
 const Header = ({ logo }) => {
@@ -32,6 +33,11 @@ const Header = ({ logo }) => {
   
   const path = usePathname();
   const NavLinks = [
+    { 
+      href: "/", 
+      label: "Home", 
+      icon: Home 
+    },
     { 
       href: "/dashboard", 
       label: "Dashboard", 
@@ -96,19 +102,11 @@ const Header = ({ logo }) => {
         >
           <Image 
             src={logo} 
-            width={80} 
+            width={200} 
             height={80} 
             alt="logo" 
             priority
-            className="
-              rounded-lg 
-              transition-all 
-              duration-300 
-              group-hover:scale-105 
-              group-hover:rotate-3 
-              group-hover:shadow-lg
-              transform
-            "
+           
           />
         </Link>
 

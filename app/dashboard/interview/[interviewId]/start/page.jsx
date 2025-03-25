@@ -46,14 +46,7 @@ const StartInterview = ({ params }) => {
         />
       </div>
       <div className="flex gap-3 my-5 md:my-0 md:justify-end md:gap-6">
-  {activeQuestionIndex > 0 && (
-    <Button
-      className="bg-teal-900 text-white hover:bg-teal-800 transition"
-      onClick={() => setActiveQuestionIndex(activeQuestionIndex - 1)}
-    >
-      Previous Question
-    </Button>
-  )}
+  
   {activeQuestionIndex != mockInterviewQuestion?.length - 1 && (
     <Button
       className="bg-teal-900 text-white hover:bg-teal-800 transition"

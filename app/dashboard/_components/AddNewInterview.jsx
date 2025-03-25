@@ -14,12 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { chatSession } from "@/utils/GeminiAIModal";
-import { 
-  Briefcase, 
-  Code, 
-  Clock, 
-  LoaderCircle, 
-  PlusCircle 
+import {
+  Briefcase,
+  Code,
+  Clock,
+  LoaderCircle,
+  PlusCircle,
+  Upload
 } from "lucide-react";
 import { db } from "@/utils/db";
 import { MockInterview } from "@/utils/schema";
@@ -30,24 +31,51 @@ import { useRouter } from "next/navigation";
 
 const AddNewInterview = () => {
   const [openDailog, setOpenDialog] = useState(false);
-  const [jobPosition, setJobPosition] = useState();
+  const [jobPosition, setJobPosition] = useState(); 
   const [jobDesc, setJobDesc] = useState();
   const [jobExperience, setJobExperience] = useState();
   const [loading, setLoading] = useState(false);
+  const [resume, setResume] = useState(null);
+  const [resumeText, setResumeText] = useState();
   const [jsonResponse, setJsonResponse] = useState([]);
   const { user } = useUser();
   const router = useRouter();
 
+  const handleResumeUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      try {
+        const response = await fetch("http://localhost:5000/api/v1/interview/extract-resume", {
+          method: "POST",
+          body: formData,
+        });
+        console.log("Response:", response);
+        const result = await response.json();
+        setResumeText(result);
+        console.log("Extracted Resume Data:", resumeText);
+      } catch (error) {
+        console.error("Error uploading resume:", error);
+      }
+    }
+  };
+
   const onSubmit = async (e) => {
     setLoading(true);
     e.preventDefault();
-    console.log(jobPosition, jobDesc, jobExperience);
+    console.log("othert", jobPosition, jobDesc, jobExperience);
+    await handleResumeUpload({ target: { files: [resume] } });
+    console.log("Resume Text:", resumeText);
 
     const InputPrompt = `
+    Hey you are creating a mock interview for the following job position. so please behave like u are the interviewer and ask questions based on the given below details
   Job Positions: ${jobPosition}, 
   Job Description: ${jobDesc}, 
-  Years of Experience: ${jobExperience}. 
-  Based on this information, please provide 5 interview questions with answers in JSON format, ensuring "Question" and "Answer" are fields in the JSON.
+  Years of Experience: ${jobExperience}.
+  Resume details extracted: ${resumeText}.
+  Based on this information, please provide 6 interview questions with 3-4 questions answers in JSON format, ensuring "Question" and "Answer" are fields in the JSON.
 `;
 
     const result = await chatSession.sendMessage(InputPrompt);
@@ -72,7 +100,7 @@ const AddNewInterview = () => {
           createdAt: moment().format("YYYY-MM-DD"),
         })
         .returning({ mockId: MockInterview.mockId });
-        
+
       console.log("Inserted ID:", resp);
 
       if (resp) {
@@ -94,14 +122,14 @@ const AddNewInterview = () => {
         onClick={() => setOpenDialog(true)}
       >
         <div className="absolute -top-4 -right-4 opacity-20 group-hover:opacity-40 transition-opacity">
-          <PlusCircle 
+          <PlusCircle
             className="w-24 h-24 text-teal-600 
             transform group-hover:rotate-45 
             transition-all duration-300"
           />
         </div>
         <div className="flex flex-col items-center relative z-10">
-          <PlusCircle 
+          <PlusCircle
             className="w-12 h-12 text-teal-600 
             group-hover:scale-110 
             group-hover:text-teal-700 
@@ -116,11 +144,11 @@ const AddNewInterview = () => {
           </h2>
         </div>
       </div>
-      <Dialog open={openDailog}>
-        <DialogContent className="max-w-2xl bg-white shadow-2xl rounded-xl">
+      <Dialog open={openDailog} onOpenChange={setOpenDialog}>
+        <DialogContent className="max-w-2xl bg-white shadow-2xl rounded-xl max-h-[98%]">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-teal-600 mb-4 flex items-center">
-              <Briefcase 
+              <Briefcase
                 className="mr-3 w-8 h-8 
                 text-teal-600 
                 transform hover:rotate-12 
@@ -133,7 +161,7 @@ const AddNewInterview = () => {
               <form onSubmit={onSubmit} className="space-y-6">
                 <div>
                   <h2 className="text-lg text-gray-700 mb-4 flex items-center">
-                    <Code 
+                    <Code
                       className="mr-3 w-6 h-6 
                       text-teal-500 
                       transform hover:scale-110 
@@ -145,7 +173,7 @@ const AddNewInterview = () => {
 
                   <div className="mb-4">
                     <label className="flex items-center text-teal-600 font-medium mb-2">
-                      <Briefcase 
+                      <Briefcase
                         className="mr-2 w-5 h-5 
                         text-teal-500 
                         transform hover:rotate-6 
@@ -165,7 +193,7 @@ const AddNewInterview = () => {
                   </div>
                   <div className="mb-4">
                     <label className="flex items-center text-teal-600 font-medium mb-2">
-                      <Code 
+                      <Code
                         className="mr-2 w-5 h-5 
                         text-teal-500 
                         transform hover:scale-110 
@@ -185,7 +213,7 @@ const AddNewInterview = () => {
                   </div>
                   <div className="mb-4">
                     <label className="flex items-center text-teal-600 font-medium mb-2">
-                      <Clock 
+                      <Clock
                         className="mr-2 w-5 h-5 
                         text-teal-500 
                         transform hover:rotate-12 
@@ -205,6 +233,26 @@ const AddNewInterview = () => {
                       onChange={(e) => setJobExperience(e.target.value)}
                     />
                   </div>
+                  <div className="mb-4">
+                    <label className="flex items-center text-teal-600 font-medium mb-2">
+                      <Upload
+                        className="mr-2 w-5 h-5 
+                        text-teal-500 
+                        transform hover:scale-110 
+                        transition-transform 
+                        drop-shadow-md"
+                      />
+                      Upload Resume
+                    </label>
+                    <Input
+                      type="file"
+                      accept="application/pdf"
+                      className="w-full border-2 border-gray-300 
+                      focus:border-teal-600 focus:ring-2 focus:ring-teal-500 
+                      rounded-lg transition-all duration-300"
+                      onChange={(e) => setResume(e.target.files[0])}
+                    />
+                  </div>
                 </div>
                 <div className="flex gap-4 justify-end">
                   <Button
@@ -217,8 +265,8 @@ const AddNewInterview = () => {
                   >
                     Cancel
                   </Button>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     disabled={loading}
                     className="bg-teal-600 hover:bg-teal-700 
                     text-white transition-colors duration-300 
@@ -226,19 +274,19 @@ const AddNewInterview = () => {
                   >
                     {loading ? (
                       <>
-                        <LoaderCircle 
+                        <LoaderCircle
                           className="animate-spin mr-2 
                           group-hover:rotate-180 
-                          transition-transform" 
+                          transition-transform"
                         />
                         Generating From AI
                       </>
                     ) : (
                       <>
-                        <PlusCircle 
+                        <PlusCircle
                           className="mr-2 
                           group-hover:scale-110 
-                          transition-transform" 
+                          transition-transform"
                         />
                         Start Interview
                       </>

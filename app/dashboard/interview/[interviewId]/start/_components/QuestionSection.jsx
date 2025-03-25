@@ -1,15 +1,45 @@
 import { Lightbulb, Volume2 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const QuestionSection = ({ mockInterviewQuestion, activeQuestionIndex }) => {
+  const [voices, setVoices] = useState([]);
+
+  // Load available voices when the component mounts
+  useEffect(() => {
+    const loadVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      setVoices(availableVoices);
+    };
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }, []);
+
+  // Function to handle text-to-speech
   const textToSpeech = (text) => {
     if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel(); // Stop any ongoing speech
+
+      if (!text) return; // Prevent errors if the text is empty or undefined
+
       const speech = new SpeechSynthesisUtterance(text);
+      
+      // Set a default voice (Google's voice preferred)
+      speech.voice = voices.find((v) => v.name.includes("Google")) || voices[0];
+
       window.speechSynthesis.speak(speech);
     } else {
       alert("Sorry, your browser does not support text to speech.");
     }
   };
+
+
+   // Automatically speak when the active question changes
+   useEffect(() => {
+    if (mockInterviewQuestion?.[activeQuestionIndex]?.Question) {
+      textToSpeech(mockInterviewQuestion[activeQuestionIndex].Question);
+    }
+  }, [activeQuestionIndex, mockInterviewQuestion]);
 
   return (
     mockInterviewQuestion && (
@@ -33,7 +63,7 @@ const QuestionSection = ({ mockInterviewQuestion, activeQuestionIndex }) => {
         {/* Current Question */}
         <div className="bg-white border border-teal-100 rounded-lg p-4 shadow-sm">
           <h2 className="text-teal-900 text-md md:text-lg font-semibold">
-            {mockInterviewQuestion[activeQuestionIndex]?.Question}
+            {mockInterviewQuestion[activeQuestionIndex]?.Question || "No question available"}
           </h2>
         </div>
 
@@ -55,7 +85,7 @@ const QuestionSection = ({ mockInterviewQuestion, activeQuestionIndex }) => {
             <strong className="text-teal-900 text-sm">Note:</strong>
           </div>
           <p className="text-xs text-teal-700">
-            {process.env.NEXT_PUBLIC_QUESTION_NOTE}
+            {process.env.NEXT_PUBLIC_QUESTION_NOTE || "No note available"}
           </p>
         </div>
       </div>

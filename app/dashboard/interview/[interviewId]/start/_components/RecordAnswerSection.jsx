@@ -112,7 +112,9 @@ const RecordAnswerSection = ({
           "Transcribe the following audio:",
           { inlineData: { data: base64Audio, mimeType: "audio/webm" } },
         ]);
-
+        if(!result){
+          toast.error("Error transcribing audio. Please try again.");
+        }
         const transcription = result.response.text();
         setUserAnswer((prevAnswer) => prevAnswer + " " + transcription);
         setLoading(false);
